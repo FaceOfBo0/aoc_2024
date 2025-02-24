@@ -1,0 +1,32 @@
+func (m *Maze) isRectangularPath() bool {
+    return (m.leftCnt == m.rightCnt) && (m.upCnt == m.downCnt)
+}
+
+func (m *Maze) calcLoopPaths() int {
+	loopCnt := 0
+	for _, elem := range m.data {
+		loopCnt += strings.Count(elem, "O")
+	}
+	return loopCnt
+}
+
+/*switch m.guardDir {
+case Up:
+	m.data[m.guardPos.y-1] = utils.ReplaceAtIndex(m.data[m.guardPos.y-1], m.guardPos.x, "O")
+case Down:
+	m.data[m.guardPos.y+1] = utils.ReplaceAtIndex(m.data[m.guardPos.y+1], m.guardPos.x, "O")
+case Left:
+	m.data[m.guardPos.y] = utils.ReplaceAtIndex(m.data[m.guardPos.y], m.guardPos.x-1, "O")
+case Right:
+	m.data[m.guardPos.y] = utils.ReplaceAtIndex(m.data[m.guardPos.y], m.guardPos.x+1, "O")
+}*/
+
+func (m *Maze) getObstaclesPos() {
+	for y := range m.data {
+		for x := range m.data[y] {
+			if string(m.data[y][x]) == "#" {
+				m.obstacles = append(m.obstacles, Position{x: x, y: y})
+			}
+		}
+	}
+}

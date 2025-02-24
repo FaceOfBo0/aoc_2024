@@ -1,0 +1,90 @@
+package day2
+
+import (
+	"AoC_24/helpers"
+	"math"
+)
+
+func checkConditionsP2(level []int) int {
+	incrFlag, incrCnt, incrIdx := allIncr(level)
+	decrFlag, decrCnt, decrIdx := allDecr(level)
+	newLvl := []int(nil)
+	replaced := false
+
+	if !(incrFlag || decrFlag) {
+		if incrCnt == len(level)-2 {
+			replaced = true
+			newLvl = helpers.Remove(level, incrIdx)
+			if allInc, _, _ := allIncr(newLvl); !allInc {
+				newLvl = helpers.Remove(level, incrIdx+1)
+				if allInc2, _, _ := allIncr(newLvl); !allInc2 {
+					return 0
+				}
+			}
+		} else if decrCnt == len(level)-2 {
+			replaced = true
+			newLvl = helpers.Remove(level, decrIdx)
+			if allDec, _, _ := allDecr(newLvl); !allDec {
+				newLvl = helpers.Remove(level, incrIdx+1)
+				if allDec2, _, _ := allDecr(newLvl); !allDec2 {
+					return 0
+				}
+			}
+		} else {
+			return 0
+		}
+	}
+
+	if replaced {
+		diffFlag, _, _ := allDiff(newLvl)
+		if !diffFlag {
+			return 0
+		}
+	} else {
+		diffFlag, diffCnt, diffIdx := allDiff(level)
+		if !(diffFlag) {
+			if diffCnt == len(level)-2 {
+				newLevel := helpers.Remove(level, diffIdx)
+				if allDif, _, _ := allDiff(newLevel); !allDif {
+					newLevel2 := helpers.Remove(level, diffIdx+1)
+					if allDif2, _, _ := allDiff(newLevel2); !allDif2 {
+						return 0
+					}
+				}
+			} else {
+				return 0
+			}
+		}
+	}
+
+	//fmt.Print("passed")
+	return 1
+}
+
+func allDiff(level []int) (bool, int, int) {
+	diffCnt := 0
+	diffIdx := 0
+	comparisons := len(level) - 1
+
+	for i := 0; i < comparisons; i++ {
+		diff := math.Abs(float64(level[i]) - float64(level[i+1]))
+		if diff == 1 || diff == 2 || diff == 3 {
+			diffCnt++
+		} else {
+			diffIdx = i
+		}
+	}
+
+	return diffCnt == comparisons, diffCnt, diffIdx
+}
+
+func PrintPart2() {
+	reportList := readInReports()
+	safeReps := 0
+	for _, rep := range reportList {
+		safeReps += checkConditionsP2(rep.levels)
+	}
+
+	println("AoC 24 Day 2, Part 2:", safeReps)
+
+}
