@@ -10,13 +10,13 @@ func (hm *HikeMap) parseMapv2() {
 	for y, row := range hm.topMap {
 		for x, col := range row {
 			if elem, _ := strconv.Atoi(string(col)); elem == 0 {
-				hm.searchTrailsv2(Point{y: y, x: x}, 0)
+				hm.searchTrailsv2(utils.Point{Y: y, X: x}, 0)
 			}
 		}
 	}
 }
 
-func (hm *HikeMap) searchTrailsv2(pos Point, height int) {
+func (hm *HikeMap) searchTrailsv2(pos utils.Point, height int) {
 	nextHts := hm.findNextHeights(pos, height+1)
 	if height+1 == 9 {
 		hm.trailCntDist += len(nextHts)

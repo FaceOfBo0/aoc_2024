@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-type Coordinates interface {
-	GetX() int
-	GetY() int
+type Point struct {
+	Y int
+	X int
 }
 
 func CharByteToInt(input byte) int {
@@ -19,8 +19,8 @@ func CharByteToInt(input byte) int {
 	return result
 }
 
-func ReplaceCoords(grid []string, pos Coordinates, repl string) {
-	grid[pos.GetY()] = ReplaceAtIndex(grid[pos.GetY()], pos.GetX(), repl)
+func ReplaceCoords(grid []string, pos Point, repl string) {
+	grid[pos.Y] = ReplaceAtIndex(grid[pos.Y], pos.X, repl)
 }
 
 func ReplaceAtIndex(input string, index int, replacement string) string {
