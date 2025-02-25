@@ -4,7 +4,6 @@ import (
 	"AoC_24/utils"
 	"fmt"
 	"math"
-	"sync"
 )
 
 func splitNumv2(num uint64, base int) (uint64, uint64) {
@@ -76,33 +75,8 @@ func blinkv2seq(stones []uint64, blinkCnt int) uint64 {
 	return totalCnt
 }
 
-func blinkv2(stones []uint64, blinkCnt int) uint64 {
-	var totalCnt uint64
-	totalCnt = 0
-	var wg sync.WaitGroup
-	totalCntChan := make(chan uint64)
-
-	for _, st := range stones {
-		wg.Add(1)
-		go func(stone uint64) {
-			defer wg.Done()
-			totalCntChan <- stoneNumsRecCached2(stone, blinkCnt)
-		}(st)
-	}
-
-	go func() {
-		wg.Wait()
-		close(totalCntChan)
-	}()
-
-	for elem := range totalCntChan {
-		totalCnt += elem
-	}
-	return totalCnt
-}
-
 func PrintPart2() {
 	input, _ := utils.ReadLines("day11/input.txt")
 	nums := parseNums(input[0])
-	fmt.Println("AoC 24 Day 11, Part 2:", blinkv2seq(nums, 25))
+	fmt.Println("AoC 24 Day 11, Part 2:", blinkv2seq(nums, 75))
 }

@@ -14,6 +14,15 @@ type Patch struct {
 	coords    []utils.Point
 }
 
+func (p *Patch) getPerimeter() int {
+	result := 0
+	for _, val := range p.borderMap {
+		result += val
+	}
+
+	return result
+}
+
 func (p *Patch) updateBorder() {
 	if len(p.coords) > 1 {
 		thisY, nextY := p.coords[len(p.coords)-2].Y, p.coords[len(p.coords)-1].Y
@@ -23,6 +32,18 @@ func (p *Patch) updateBorder() {
 			if !slices.Contains(p.coords, utils.Point{X: nextX, Y: nextY - 1}) {
 				p.borderMap["N"]++
 				p.borderMap["S"]++
+				p.perimeter += 2
+			}
+		} else if nextY == thisY+1 {
+			if slices.Contains(p.coords, utils.Point{X: nextX, Y: nextY - 1}) {
+				p.borderMap["W"]++
+				p.borderMap["E"]++
+				p.perimeter += 2
+			} else {
+				p.borderMap["N"]++
+				p.borderMap["W"]++
+				p.borderMap["E"]++
+				p.perimeter += 3
 			}
 		}
 	}
@@ -33,10 +54,18 @@ func NewPatch(plantType string) *Patch {
 	return &Patch{
 		plantType: plantType,
 		area:      0,
+		perimeter: 4,
 		borderMap: bmap,
-		perimeter: 0,
 		coords:    make([]utils.Point, 0),
 	}
+}
+
+func calcCost(garden map[string]*Patch) int {
+	totalCost := 0
+	for _, patch := range garden {
+		totalCost += patch.area * patch.perimeter
+	}
+	return totalCost
 }
 
 func parseGarden(input []string) map[string]*Patch {
@@ -47,11 +76,13 @@ func parseGarden(input []string) map[string]*Patch {
 			if key, ok := regionMap[char]; ok {
 				key.coords = append(key.coords, utils.Point{Y: y, X: x})
 				key.area++
+				key.updateBorder()
 			} else {
 				regionMap[char] = NewPatch(char)
 				p := regionMap[char]
 				p.coords = append(p.coords, utils.Point{Y: y, X: x})
 				p.area++
+				p.updateBorder()
 			}
 		}
 	}
@@ -64,5 +95,5 @@ func PrintPart1() {
 	for k, p := range result {
 		fmt.Printf("%v: %v\n", k, p)
 	}
-	// fmt.Println("AoC 24 Day 12, Part 1:", 0)
+	fmt.Println("AoC 24 Day 12, Part 1:", calcCost(result))
 }
