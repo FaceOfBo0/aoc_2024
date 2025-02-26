@@ -6,12 +6,16 @@ import (
 	"slices"
 )
 
+type Border map[string]int
+type Coordinates []utils.Point
+
 type Patch struct {
 	plantType string
 	area      int
 	perimeter int
-	borderMap map[string]int
-	coords    []utils.Point
+	borderMap Border
+	coords    []Coordinates
+	points    Coordinates
 }
 
 func (p *Patch) getPerimeter() int {
@@ -23,19 +27,18 @@ func (p *Patch) getPerimeter() int {
 	return result
 }
 
-func (p *Patch) updateBorder() {
-	if len(p.coords) > 1 {
-		thisY, nextY := p.coords[len(p.coords)-2].Y, p.coords[len(p.coords)-1].Y
-		thisX, nextX := p.coords[len(p.coords)-2].X, p.coords[len(p.coords)-1].X
+func (p *Patch) updateBorders() {
+	for _, coord := range p.coords {
+		thisY, nextY := coord[len(p.coords)-2].Y, coord[len(p.coords)-1].Y
+		thisX, nextX := coord[len(p.coords)-2].X, coord[len(p.coords)-1].X
 
-		if nextY == thisY && nextX == thisX+1 {
-			if !slices.Contains(p.coords, utils.Point{X: nextX, Y: nextY - 1}) {
-				p.borderMap["N"]++
-				p.borderMap["S"]++
-				p.perimeter += 2
-			}
+		if nextY == thisY && nextX == thisX+1 && !slices.Contains(coord, utils.Point{X: nextX, Y: nextY - 1}) {
+			p.borderMap["N"]++
+			p.borderMap["S"]++
+			p.perimeter += 2
+
 		} else if nextY == thisY+1 {
-			if slices.Contains(p.coords, utils.Point{X: nextX, Y: nextY - 1}) {
+			if slices.Contains(coord, utils.Point{X: nextX, Y: nextY - 1}) {
 				p.borderMap["W"]++
 				p.borderMap["E"]++
 				p.perimeter += 2
@@ -56,7 +59,8 @@ func NewPatch(plantType string) *Patch {
 		area:      0,
 		perimeter: 4,
 		borderMap: bmap,
-		coords:    make([]utils.Point, 0),
+		coords:    make([]Coordinates, 0),
+		points:    make(Coordinates, 0),
 	}
 }
 
@@ -68,21 +72,23 @@ func calcCost(garden map[string]*Patch) int {
 	return totalCost
 }
 
-func parseGarden(input []string) map[string]*Patch {
+func calcBorders() {
+
+}
+
+func parsePatches(input []string) map[string]*Patch {
 	regionMap := make(map[string]*Patch)
 	for y, row := range input {
 		for x, elem := range row {
 			char := string(elem)
 			if key, ok := regionMap[char]; ok {
-				key.coords = append(key.coords, utils.Point{Y: y, X: x})
+				key.points = append(key.points, utils.Point{Y: y, X: x})
 				key.area++
-				key.updateBorder()
 			} else {
 				regionMap[char] = NewPatch(char)
 				p := regionMap[char]
-				p.coords = append(p.coords, utils.Point{Y: y, X: x})
+				p.points = append(p.points, utils.Point{Y: y, X: x})
 				p.area++
-				p.updateBorder()
 			}
 		}
 	}
@@ -91,7 +97,7 @@ func parseGarden(input []string) map[string]*Patch {
 
 func PrintPart1() {
 	input, _ := utils.ReadLines("day12/test1.txt")
-	result := parseGarden(input)
+	result := parsePatches(input)
 	for k, p := range result {
 		fmt.Printf("%v: %v\n", k, p)
 	}
