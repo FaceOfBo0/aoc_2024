@@ -36,13 +36,13 @@ func (p *Patch) updateBorder() {
 			}
 		} else if nextY == thisY+1 {
 			if slices.Contains(p.coords, utils.Point{X: nextX, Y: nextY - 1}) {
-				p.borderMap["W"]++
 				p.borderMap["E"]++
+				p.borderMap["W"]++
 				p.perimeter += 2
 			} else {
 				p.borderMap["N"]++
-				p.borderMap["W"]++
 				p.borderMap["E"]++
+				p.borderMap["W"]++
 				p.perimeter += 3
 			}
 		}
