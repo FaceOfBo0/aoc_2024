@@ -3,6 +3,7 @@ package day12
 import (
 	"AoC_24/utils"
 	"fmt"
+
 	mapset "github.com/deckarep/golang-set/v2"
 )
 
@@ -23,7 +24,6 @@ func NewPatch(plantType string) *Patch {
 	return &Patch{
 		plantType:  plantType,
 		areas:      make([]int, 0),
-		perimeters: make([]int, 0),
 		overlaps:   make([]int, 0),
 		borderSets: make([]mapset.Set[Coordinate], 0),
 	}
@@ -107,11 +107,19 @@ func NewPatch(plantType string) *Patch {
 func calcCost(garden map[string]*Patch) int {
 	totalCost := 0
 	for _, patch := range garden {
-		for i, area := range patch.areas {
-			totalCost += area * (area*4 - (patch.overlaps[i] * 2))
+		patch.calcPerimeters()
+		for _, per := range patch.perimeters {
+			totalCost += per
 		}
 	}
 	return totalCost
+}
+
+func (p *Patch) calcPerimeters() {
+	p.perimeters = make([]int, len(p.areas))
+	for i, area := range p.areas {
+		p.perimeters[i] = area * (area*4 - (p.overlaps[i] * 2))
+	}
 }
 
 func parsePatches(input []string) map[string]*Patch {
@@ -207,11 +215,67 @@ func parsePatches(input []string) map[string]*Patch {
 	return regionMap
 }
 
+func (p *Patch) findPathRec(grid []string, char string, setIdx int, yPos, xPos int) {
+	p.areas[setIdx]++
+	p.borderSets[setIdx].Add(Coordinate{idx: setIdx, pnt: utils.Point{Y: yPos, X: xPos}})
+	rightCd := Coordinate{idx: setIdx, pnt: utils.Point{Y: yPos, X: xPos + 1}}
+	downCd := Coordinate{idx: setIdx, pnt: utils.Point{Y: yPos + 1, X: xPos}}
+
+	if !p.borderSets[setIdx].Contains(rightCd) {
+		if string(grid[yPos][xPos+1]) == char {
+			p.overlaps[setIdx]++
+			p.findPathRec(grid, char, setIdx, yPos, xPos+1)
+		}
+	} else {
+		p.overlaps[setIdx]++
+	}
+
+	if !p.borderSets[setIdx].Contains(downCd) {
+		if string(grid[yPos+1][xPos]) == char {
+			p.overlaps[setIdx]++
+			p.findPathRec(grid, char, setIdx, yPos+1, xPos)
+		}
+	} else {
+		p.overlaps[setIdx]++
+	}
+	return
+}
+
+func parsePatchesV2(input []string) map[string]*Patch {
+	regionMap := make(map[string]*Patch)
+	for y, row := range input {
+		for x, elem := range row {
+			char := string(elem)
+			if patch, ok := regionMap[char]; ok {
+				isIn := false
+
+				for i := range patch.borderSets {
+					patch.findPathRec(input, char, i, y, x)
+				}
+
+				if !isIn {
+
+				}
+			} else {
+				regionMap[char] = NewPatch(char)
+				p := regionMap[char]
+				p.borderSets = append(p.borderSets, mapset.NewSet[Coordinate]())
+				p.areas = append(p.areas, 0)
+				p.overlaps = append(p.overlaps, 0)
+				p.findPathRec(input, char, 0, y, x)
+				fmt.Println("per: ", p.areas[0]*(p.areas[0]*4-p.overlaps[0]*2))
+				fmt.Println("finished")
+			}
+		}
+	}
+	return regionMap
+}
+
 func PrintPart1() {
-	input, _ := utils.ReadLines("day12/test2.txt")
-	result := parsePatches(input)
+	input, _ := utils.ReadLines("day12/test0.txt")
+	result := parsePatchesV2(input)
+	fmt.Println("AoC 24 Day 12, Part 1:", calcCost(result))
 	for k, p := range result {
 		fmt.Printf("%v: %v\n", k, p)
 	}
-	fmt.Println("AoC 24 Day 12, Part 1:", calcCost(result))
 }
