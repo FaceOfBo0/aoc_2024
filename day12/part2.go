@@ -1,14 +1,6 @@
 package day12
 
-import (
-	"AoC_24/utils"
-	"fmt"
-)
-
 func PrintPart2() {
-	input, _ := utils.ReadLines("day12/input.txt")
-	for i, v := range input {
-		fmt.Printf("%v: %v\n", i, v)
-	}
+	//input, _ := utils.ReadLines("day12/input.txt")
 	// fmt.Println("AoC 24 Day 12, Part 2:", 0)
 }
