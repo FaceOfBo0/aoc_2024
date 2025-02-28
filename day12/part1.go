@@ -8,11 +8,12 @@ import (
 )
 
 type Region struct {
-	plantType  string
-	areas      []int
-	perimeters []int
-	overlaps   []int
-	patches    []mapset.Set[Coordinate]
+	plantType string
+	areas     []int
+	costs     []int
+	sides     []int
+	overlaps  []int
+	patches   []mapset.Set[Coordinate]
 }
 
 type Coordinate struct {
@@ -35,18 +36,19 @@ func NewRegion(plantType string) *Region {
 		plantType: plantType,
 		areas:     make([]int, 0),
 		overlaps:  make([]int, 0),
+		sides:     make([]int, 0),
 		patches:   make([]mapset.Set[Coordinate], 0),
 	}
 }
 
 func (p *Region) calcPerimeters() {
-	p.perimeters = make([]int, len(p.areas))
+	p.costs = make([]int, len(p.areas))
 	for i, area := range p.areas {
-		p.perimeters[i] = area * (area*4 - (p.overlaps[i] * 2))
+		p.costs[i] = area * (area*4 - (p.overlaps[i] * 2))
 	}
 }
 
-func (p *Region) findPatchRec(grid []string, char string, setIdx int, yPos, xPos int, dir Direction) {
+func (p *Region) findPatchRec(grid []string, setIdx int, yPos, xPos int, dir Direction) {
 	p.areas[setIdx]++
 	p.patches[setIdx].Add(Coordinate{idx: setIdx, pnt: utils.Point{Y: yPos, X: xPos}})
 	leftCd := Coordinate{idx: setIdx, pnt: utils.Point{Y: yPos, X: xPos - 1}}
@@ -56,9 +58,9 @@ func (p *Region) findPatchRec(grid []string, char string, setIdx int, yPos, xPos
 
 	if !p.patches[setIdx].Contains(rightCd) {
 		if xPos < len(grid[0])-1 {
-			if string(grid[yPos][xPos+1]) == char {
+			if string(grid[yPos][xPos+1]) == p.plantType {
 				p.overlaps[setIdx]++
-				p.findPatchRec(grid, char, setIdx, yPos, xPos+1, Right)
+				p.findPatchRec(grid, setIdx, yPos, xPos+1, Right)
 			}
 		}
 	} else if !(dir == Left) {
@@ -67,9 +69,9 @@ func (p *Region) findPatchRec(grid []string, char string, setIdx int, yPos, xPos
 
 	if !p.patches[setIdx].Contains(downCd) {
 		if yPos < len(grid)-1 {
-			if string(grid[yPos+1][xPos]) == char {
+			if string(grid[yPos+1][xPos]) == p.plantType {
 				p.overlaps[setIdx]++
-				p.findPatchRec(grid, char, setIdx, yPos+1, xPos, Down)
+				p.findPatchRec(grid, setIdx, yPos+1, xPos, Down)
 			}
 		}
 	} else if !(dir == Up) {
@@ -78,18 +80,18 @@ func (p *Region) findPatchRec(grid []string, char string, setIdx int, yPos, xPos
 
 	if !p.patches[setIdx].Contains(leftCd) {
 		if xPos > 0 {
-			if string(grid[yPos][xPos-1]) == char {
+			if string(grid[yPos][xPos-1]) == p.plantType {
 				p.overlaps[setIdx]++
-				p.findPatchRec(grid, char, setIdx, yPos, xPos-1, Left)
+				p.findPatchRec(grid, setIdx, yPos, xPos-1, Left)
 			}
 		}
 	}
 
 	if !p.patches[setIdx].Contains(upCd) {
 		if yPos > 0 {
-			if string(grid[yPos-1][xPos]) == char {
+			if string(grid[yPos-1][xPos]) == p.plantType {
 				p.overlaps[setIdx]++
-				p.findPatchRec(grid, char, setIdx, yPos-1, xPos, Up)
+				p.findPatchRec(grid, setIdx, yPos-1, xPos, Up)
 			}
 		}
 	}
@@ -118,7 +120,7 @@ func parseRegions(input []string) map[string]*Region {
 					newIdx := len(patch.patches) - 1
 					patch.areas = append(patch.areas, 0)
 					patch.overlaps = append(patch.overlaps, 0)
-					patch.findPatchRec(input, char, newIdx, y, x, Root)
+					patch.findPatchRec(input, newIdx, y, x, Root)
 				}
 			} else {
 				regionMap[char] = NewRegion(char)
@@ -126,7 +128,7 @@ func parseRegions(input []string) map[string]*Region {
 				p.patches = append(p.patches, mapset.NewSet[Coordinate]())
 				p.areas = append(p.areas, 0)
 				p.overlaps = append(p.overlaps, 0)
-				p.findPatchRec(input, char, 0, y, x, Root)
+				p.findPatchRec(input, 0, y, x, Root)
 			}
 		}
 	}
@@ -137,7 +139,7 @@ func calcCost(garden map[string]*Region) int {
 	totalCost := 0
 	for _, patch := range garden {
 		patch.calcPerimeters()
-		for _, per := range patch.perimeters {
+		for _, per := range patch.costs {
 			totalCost += per
 		}
 	}

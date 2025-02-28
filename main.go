@@ -1,7 +1,7 @@
 package main
 
 import (
-	"AoC_24/day12"
+	"AoC_24/day13"
 	"fmt"
 	"time"
 )
@@ -29,8 +29,10 @@ func main() {
 	day10.PrintPart1()
 	day10.PrintPart2()
 	day11.PrintPart1()
-	day11.PrintPart2()*/
-	day12.PrintPart2()
+	day11.PrintPart2()
+	day12.PrintPart1()
+	day12.PrintPart2()*/
+	day13.PrintPart1()
 	fmt.Println("time elapsed: ", time.Since(start))
 
 }
