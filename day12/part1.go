@@ -127,7 +127,6 @@ func parseRegions(input []string) map[string]*Region {
 				p.areas = append(p.areas, 0)
 				p.overlaps = append(p.overlaps, 0)
 				p.findPatchRec(input, char, 0, y, x, Root)
-
 			}
 		}
 	}
