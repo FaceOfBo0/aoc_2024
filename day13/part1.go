@@ -5,8 +5,30 @@ import (
 	"fmt"
 )
 
+type Button struct {
+	incX int
+	incY int
+}
+
+type BtnConfig struct {
+	btnA   Button
+	btnB   Button
+	prizeX int
+	prizeY int
+}
+
+func NewBtnConfig(a Button, b Button) BtnConfig {
+	return BtnConfig{
+		btnA: a,
+		btnB: b,
+	}
+}
+
+func parseBtnConfigs(input []string) {
+
+}
 func PrintPart1() {
-	input, _ := utils.ReadLines("day13/input.txt")
+	input, _ := utils.ReadLines("day13/test.txt")
 	for i, v := range input {
 		fmt.Printf("%v: %v\n", i, v)
 	}
