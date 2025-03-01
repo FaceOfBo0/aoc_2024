@@ -1,8 +1,9 @@
 package day13
 
 import (
-	"AoC_24/utils"
 	"fmt"
+
+	linalg "gonum.org/v1/gonum/mat"
 )
 
 type Button struct {
@@ -24,13 +25,19 @@ func NewBtnConfig(a Button, b Button) BtnConfig {
 	}
 }
 
-func parseBtnConfigs(input []string) {
-
+func parseBtnConfigs(input []string) []BtnConfig {
+	btnCfgList := make([]BtnConfig, 0)
+	return btnCfgList
 }
 func PrintPart1() {
-	input, _ := utils.ReadLines("day13/test.txt")
-	for i, v := range input {
-		fmt.Printf("%v: %v\n", i, v)
-	}
+	A := linalg.NewDense(2, 2, []float64{94, 22, 34, 67})
+	b := linalg.NewVecDense(2, []float64{8400, 5400})
+	var result linalg.VecDense
+	result.SolveVec(A, b)
+	fmt.Printf("result: %v\n", result.RawVector().Data)
+	// input, _ := utils.ReadLines("day13/test.txt")
+	// for i, v := range input {
+	// 	fmt.Printf("%v: %v\n", i, v)
+	// }
 	// fmt.Println("AoC 24 Day 13, Part 1:", 0)
 }
