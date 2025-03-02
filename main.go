@@ -32,7 +32,7 @@ func main() {
 	day11.PrintPart2()
 	day12.PrintPart1()
 	day12.PrintPart2()*/
-	day13.PrintPart1()
+	day13.PrintPart1Alt()
 	fmt.Println("time elapsed: ", time.Since(start))
 
 }

@@ -54,8 +54,10 @@ func parseBtnConfigs(input []string) []BtnConfig {
 func calculateCost(btnCfgs []BtnConfig) int {
 	totalCost := 0
 	for _, btncfg := range btnCfgs {
-		Aalt := utils.NewSqrMatrix(2, []int{int(btncfg.btnA.incX), int(btncfg.btnB.incX), int(btncfg.btnA.incY), int(btncfg.btnB.incY)})
-		fmt.Printf("Aalt.Det(): %v\n", Aalt.Det())
+		// Aalt := utils.NewSqrMatrix(2, []float64{btncfg.btnA.incX, btncfg.btnB.incX, btncfg.btnA.incY, btncfg.btnB.incY})
+		// balt := utils.NewVector(2, []float64{btncfg.prizeX, btncfg.prizeY})
+		// res, _ := utils.SolveLinEq(Aalt, balt)
+		//fmt.Printf("res: %v\n", res)
 		A := mat.NewDense(2, 2, []float64{btncfg.btnA.incX, btncfg.btnB.incX, btncfg.btnA.incY, btncfg.btnB.incY})
 		b := mat.NewVecDense(2, []float64{btncfg.prizeX, btncfg.prizeY})
 		b.SolveVec(A, b)
@@ -71,8 +73,6 @@ func calculateCost(btnCfgs []BtnConfig) int {
 			intA++
 			fracA = 0
 		}
-		fmt.Printf("intA: %v\n", intA)
-		fmt.Printf("fracA: %v\n", fracA)
 
 		intB, fracB := math.Modf(resB)
 		fracB, _ = math.Modf(fracB * 100000)
@@ -80,20 +80,22 @@ func calculateCost(btnCfgs []BtnConfig) int {
 			intB++
 			fracB = 0
 		}
-		fmt.Printf("intB: %v\n", intB)
-		fmt.Printf("fracB: %v\n", fracB)
 
 		if (fracA == 0) &&
 			(fracB == 0) &&
 			(intA <= 100) &&
-			(intB <= 100) {
+			(intB <= 100) &&
+			(intA > 0) &&
+			(intB > 0) {
+			fmt.Printf("intA: %v\n", intA)
+			fmt.Printf("intB: %v\n", intB)
 			totalCost += int(intA*3 + intB)
 		}
 	}
 	return totalCost
 }
 func PrintPart1() {
-	input, _ := utils.ReadLines("day13/test.txt")
+	input, _ := utils.ReadLines("day13/input.txt")
 	btnCfgs := parseBtnConfigs(input)
 	fmt.Println("AoC 24 Day 13, Part 1:", calculateCost(btnCfgs))
 	a := 8
