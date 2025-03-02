@@ -6,7 +6,7 @@ type SqrMatrix interface {
 	Inv() (SqrMatrix, error)
 	Det() float64
 	Dim() int
-	Dat() []float64
+	Data() []float64
 }
 
 type SqrMat2 struct {
@@ -47,9 +47,9 @@ func MatVecMult(matA SqrMatrix, vecB Vector) (Vector, error) {
 	}
 
 	newData := make([]float64, vecB.Size)
-	for i := range vecB.Size {
+	for i := range matA.Dim() {
 		for j := range matA.Dim() {
-			newData[i] += matA.Dat()[i*matA.Dim()+j] * vecB.vecDat[j]
+			newData[i] += matA.Data()[i*matA.Dim()+j] * vecB.vecDat[j]
 		}
 	}
 
@@ -74,7 +74,7 @@ func (sm SqrMat2) Dim() int {
 	return sm.Dims
 }
 
-func (sm SqrMat2) Dat() []float64 {
+func (sm SqrMat2) Data() []float64 {
 	return sm.matData
 }
 
